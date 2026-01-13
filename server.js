@@ -173,6 +173,10 @@ app.post("/settings/travel-dates", async (req, res) => {
   }
 });
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 app.post("/posts", upload.single("file"), async (req, res) => {
   const { kind, title, content, url, owner } = req.body;
   const filePath = req.file ? `uploads/${req.file.filename}` : null;
