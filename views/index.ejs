@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Japan Trip Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/public/style.css" />
+  </head>
+  <body class="text-slate-900">
+    <main class="px-8 py-6 full-height">
+      <header class="flex items-center justify-between mb-6">
+        <div>
+          <p class="uppercase tracking-[0.2em] text-xs text-slate-500">
+            Japan Trip Planning Dashboard
+          </p>
+          <h1 class="text-3xl font-semibold">November 2026</h1>
+          <p class="text-sm text-slate-500">
+            Local planner for Ellie + Johnny. Desktop-only, full screen.
+          </p>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="owner-pill">Current: <span data-owner-display>Ellie</span></div>
+          <button
+            class="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-100"
+            type="button"
+            data-theme-toggle
+          >
+            <span data-theme-label>Dark Mode</span>
+          </button>
+          <button
+            class="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-100"
+            type="button"
+            data-owner-change
+          >
+            Change
+          </button>
+        </div>
+      </header>
+
+      <section class="section-card p-5 mb-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-semibold">Trip Dates</h2>
+            <p class="text-sm text-slate-500">Lock in travel dates to anchor the calendar.</p>
+          </div>
+          <form class="flex items-end gap-3" action="/settings/travel-dates" method="POST">
+            <div>
+              <label class="text-xs uppercase tracking-wide text-slate-500">Start</label>
+              <input
+                type="date"
+                name="travel_start"
+                value="<%= travelStart %>"
+                class="mt-1 rounded-lg border border-slate-300 px-3 py-2"
+              />
+            </div>
+            <div>
+              <label class="text-xs uppercase tracking-wide text-slate-500">End</label>
+              <input
+                type="date"
+                name="travel_end"
+                value="<%= travelEnd %>"
+                class="mt-1 rounded-lg border border-slate-300 px-3 py-2"
+              />
+            </div>
+            <button
+              class="rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-semibold"
+              type="submit"
+            >
+              Save
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section class="grid-dashboard">
+        <div class="space-y-6">
+          <section class="section-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-lg font-semibold">Useful Links & Notes</h2>
+                <p class="text-xs text-slate-500">Drop inspiration, links, and uploads.</p>
+              </div>
+              <span class="text-xs text-slate-400">Links embed YouTube automatically.</span>
+            </div>
+            <form class="space-y-3" action="/posts" method="POST" enctype="multipart/form-data">
+              <input type="hidden" name="owner" class="owner-input" />
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs uppercase tracking-wide text-slate-500">Type</label>
+                  <select
+                    name="kind"
+                    class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                  >
+                    <option value="note">Note</option>
+                    <option value="link">Link</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs uppercase tracking-wide text-slate-500">Title</label>
+                  <input
+                    type="text"
+                    name="title"
+                    placeholder="Shrine video, food list, etc."
+                    class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                  />
+                </div>
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-wide text-slate-500">Link (optional)</label>
+                <input
+                  type="url"
+                  name="url"
+                  placeholder="https://youtube.com/..."
+                  class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-wide text-slate-500">Note</label>
+                <textarea
+                  name="content"
+                  rows="3"
+                  placeholder="Quick notes, must-try snacks, etc."
+                  class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                ></textarea>
+              </div>
+              <div class="flex items-center justify-between">
+                <input type="file" name="file" class="text-sm" />
+                <button
+                  class="rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold"
+                  type="submit"
+                >
+                  Add
+                </button>
+              </div>
+            </form>
+            <div class="mt-4 space-y-4 scroll-panel">
+              <% posts.forEach(post => { %>
+                <div class="rounded-xl border border-slate-200 bg-white p-3">
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <p class="text-xs uppercase tracking-wide text-slate-400">
+                        <%= post.kind %> • <%= post.owner %>
+                      </p>
+                      <p class="font-semibold"><%= post.title || "Untitled" %></p>
+                      <% if (post.content) { %>
+                        <p class="text-sm text-slate-600"><%= post.content %></p>
+                      <% } %>
+                      <% if (post.url) { %>
+                        <a href="<%= post.url %>" target="_blank" class="text-sm text-blue-600">
+                          <%= post.url %>
+                        </a>
+                      <% } %>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <button
+                        class="text-xs text-slate-400 hover:text-slate-700"
+                        type="button"
+                        data-edit-post
+                        data-post-id="<%= post.id %>"
+                        data-post-kind="<%= post.kind %>"
+                        data-post-title="<%= post.title || '' %>"
+                        data-post-url="<%= post.url || '' %>"
+                        data-post-content="<%= post.content || '' %>"
+                      >
+                        Edit
+                      </button>
+                      <form action="/posts/<%= post.id %>/delete" method="POST">
+                        <button class="text-xs text-slate-400 hover:text-red-500" type="submit">
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                  <% const embed = getYouTubeEmbed(post.url); %>
+                  <% if (embed) { %>
+                    <iframe class="embed-frame mt-3" src="<%= embed %>" allowfullscreen></iframe>
+                  <% } %>
+                  <% if (post.file_path) { %>
+                    <a
+                      href="/<%= post.file_path %>"
+                      target="_blank"
+                      class="mt-2 inline-block text-xs text-slate-500"
+                    >
+                      View attachment
+                    </a>
+                  <% } %>
+                </div>
+              <% }) %>
+            </div>
+          </section>
+
+          <section class="section-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-lg font-semibold">To-Do / Checklists</h2>
+                <p class="text-xs text-slate-500">Split tasks across trip phases.</p>
+              </div>
+            </div>
+            <form class="flex gap-3 mb-4" action="/tasks" method="POST">
+              <input type="hidden" name="owner" class="owner-input" />
+              <select name="category" class="rounded-lg border border-slate-300 px-3 py-2">
+                <option value="before">Before the Trip</option>
+                <option value="during">During the Trip</option>
+              </select>
+              <input
+                type="text"
+                name="text"
+                placeholder="Book Shinkansen tickets"
+                class="flex-1 rounded-lg border border-slate-300 px-3 py-2"
+              />
+              <button class="rounded-lg bg-slate-900 text-white px-4" type="submit">
+                Add
+              </button>
+            </form>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <h3 class="text-sm font-semibold mb-2">Before the Trip</h3>
+                <% tasks.filter(task => task.category === 'before').forEach(task => { %>
+                  <div class="flex items-center justify-between gap-3 mb-2">
+                    <form action="/tasks/<%= task.id %>/toggle" method="POST">
+                      <button
+                        class="text-left text-sm <%= task.done ? 'line-through text-slate-400' : '' %>"
+                        type="submit"
+                      >
+                        <%= task.text %>
+                        <span class="text-xs text-slate-400">(<%= task.owner %>)</span>
+                      </button>
+                    </form>
+                    <div class="flex items-center gap-2">
+                      <button
+                        class="text-xs text-slate-400 hover:text-slate-700"
+                        type="button"
+                        data-edit-task
+                        data-task-id="<%= task.id %>"
+                        data-task-category="<%= task.category %>"
+                        data-task-text="<%= task.text %>"
+                      >
+                        Edit
+                      </button>
+                      <form action="/tasks/<%= task.id %>/delete" method="POST">
+                        <button class="text-xs text-slate-400 hover:text-red-500">Delete</button>
+                      </form>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+              <div>
+                <h3 class="text-sm font-semibold mb-2">During the Trip</h3>
+                <% tasks.filter(task => task.category === 'during').forEach(task => { %>
+                  <div class="flex items-center justify-between gap-3 mb-2">
+                    <form action="/tasks/<%= task.id %>/toggle" method="POST">
+                      <button
+                        class="text-left text-sm <%= task.done ? 'line-through text-slate-400' : '' %>"
+                        type="submit"
+                      >
+                        <%= task.text %>
+                        <span class="text-xs text-slate-400">(<%= task.owner %>)</span>
+                      </button>
+                    </form>
+                    <div class="flex items-center gap-2">
+                      <button
+                        class="text-xs text-slate-400 hover:text-slate-700"
+                        type="button"
+                        data-edit-task
+                        data-task-id="<%= task.id %>"
+                        data-task-category="<%= task.category %>"
+                        data-task-text="<%= task.text %>"
+                      >
+                        Edit
+                      </button>
+                      <form action="/tasks/<%= task.id %>/delete" method="POST">
+                        <button class="text-xs text-slate-400 hover:text-red-500">Delete</button>
+                      </form>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="space-y-6">
+          <section class="section-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-lg font-semibold">Shopping / Packing Lists</h2>
+                <p class="text-xs text-slate-500">Track purchases before and during Japan.</p>
+              </div>
+            </div>
+            <form class="flex gap-3 mb-4" action="/items" method="POST">
+              <input type="hidden" name="owner" class="owner-input" />
+              <select name="list" class="rounded-lg border border-slate-300 px-3 py-2">
+                <option value="before-travel">Things to Buy Before Travel</option>
+                <option value="buy-in-japan">Things to Buy in Japan</option>
+              </select>
+              <input
+                type="text"
+                name="name"
+                placeholder="JR rail pass, eSIM, etc."
+                class="flex-1 rounded-lg border border-slate-300 px-3 py-2"
+              />
+              <button class="rounded-lg bg-amber-500 text-white px-4" type="submit">
+                Add
+              </button>
+            </form>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <h3 class="text-sm font-semibold mb-2">Before Travel</h3>
+                <% items.filter(item => item.list === 'before-travel').forEach(item => { %>
+                  <div class="flex items-center justify-between gap-3 mb-2">
+                    <form action="/items/<%= item.id %>/toggle" method="POST">
+                      <button
+                        class="text-left text-sm <%= item.done ? 'line-through text-slate-400' : '' %>"
+                        type="submit"
+                      >
+                        <%= item.name %>
+                        <span class="text-xs text-slate-400">(<%= item.owner %>)</span>
+                      </button>
+                    </form>
+                    <div class="flex items-center gap-2">
+                      <button
+                        class="text-xs text-slate-400 hover:text-slate-700"
+                        type="button"
+                        data-edit-item
+                        data-item-id="<%= item.id %>"
+                        data-item-list="<%= item.list %>"
+                        data-item-name="<%= item.name %>"
+                      >
+                        Edit
+                      </button>
+                      <form action="/items/<%= item.id %>/delete" method="POST">
+                        <button class="text-xs text-slate-400 hover:text-red-500">Delete</button>
+                      </form>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+              <div>
+                <h3 class="text-sm font-semibold mb-2">Buy in Japan</h3>
+                <% items.filter(item => item.list === 'buy-in-japan').forEach(item => { %>
+                  <div class="flex items-center justify-between gap-3 mb-2">
+                    <form action="/items/<%= item.id %>/toggle" method="POST">
+                      <button
+                        class="text-left text-sm <%= item.done ? 'line-through text-slate-400' : '' %>"
+                        type="submit"
+                      >
+                        <%= item.name %>
+                        <span class="text-xs text-slate-400">(<%= item.owner %>)</span>
+                      </button>
+                    </form>
+                    <div class="flex items-center gap-2">
+                      <button
+                        class="text-xs text-slate-400 hover:text-slate-700"
+                        type="button"
+                        data-edit-item
+                        data-item-id="<%= item.id %>"
+                        data-item-list="<%= item.list %>"
+                        data-item-name="<%= item.name %>"
+                      >
+                        Edit
+                      </button>
+                      <form action="/items/<%= item.id %>/delete" method="POST">
+                        <button class="text-xs text-slate-400 hover:text-red-500">Delete</button>
+                      </form>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-lg font-semibold">Itinerary Plans</h2>
+                <p class="text-xs text-slate-500">Add daily plans and must-visit places.</p>
+              </div>
+            </div>
+            <form class="flex gap-3 mb-4" action="/itinerary" method="POST">
+              <input type="hidden" name="owner" class="owner-input" />
+              <input
+                type="date"
+                name="date"
+                class="rounded-lg border border-slate-300 px-3 py-2"
+                required
+              />
+              <input
+                type="text"
+                name="description"
+                placeholder="Tsukiji breakfast + TeamLab"
+                class="flex-1 rounded-lg border border-slate-300 px-3 py-2"
+              />
+              <button class="rounded-lg bg-slate-900 text-white px-4" type="submit">
+                Add
+              </button>
+            </form>
+            <div class="space-y-2 scroll-panel">
+              <% itinerary.forEach(plan => { %>
+                <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-2">
+                  <div>
+                    <p class="text-xs uppercase tracking-wide text-slate-400"><%= plan.date %></p>
+                    <p class="text-sm font-semibold"><%= plan.description %></p>
+                    <p class="text-xs text-slate-400">Added by <%= plan.owner %></p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button
+                      class="text-xs text-slate-400 hover:text-slate-700"
+                      type="button"
+                      data-edit-itinerary
+                      data-itinerary-id="<%= plan.id %>"
+                      data-itinerary-date="<%= plan.date %>"
+                      data-itinerary-description="<%= plan.description %>"
+                    >
+                      Edit
+                    </button>
+                    <form action="/itinerary/<%= plan.id %>/delete" method="POST">
+                      <button class="text-xs text-slate-400 hover:text-red-500">Delete</button>
+                    </form>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </section>
+        </div>
+
+        <div class="space-y-6">
+          <section class="section-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-lg font-semibold">Trip Calendar</h2>
+                <p class="text-xs text-slate-500">Monthly view with daily highlights.</p>
+              </div>
+              <form action="/" method="GET">
+                <input
+                  type="month"
+                  name="month"
+                  value="<%= selectedMonth %>"
+                  class="rounded-lg border border-slate-300 px-3 py-2"
+                />
+                <button class="ml-2 rounded-lg border border-slate-300 px-3 py-2 text-sm" type="submit">
+                  Go
+                </button>
+              </form>
+            </div>
+            <div class="calendar-grid text-xs mb-2">
+              <% ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(day => { %>
+                <div class="text-center font-semibold text-slate-500"><%= day %></div>
+              <% }) %>
+            </div>
+            <div class="calendar-grid">
+              <% calendar.forEach(week => { %>
+                <% week.forEach(cell => { %>
+                  <div class="calendar-cell">
+                    <% if (cell) { %>
+                      <div class="day-label"><%= cell.day %></div>
+                      <% if (itineraryByDate[cell.dateKey]) { %>
+                        <% itineraryByDate[cell.dateKey].forEach(entry => { %>
+                          <div class="calendar-entry">
+                            <%= entry.description %>
+                          </div>
+                        <% }) %>
+                      <% } %>
+                    <% } %>
+                  </div>
+                <% }) %>
+              <% }) %>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal-backdrop hidden" data-edit-modal="post">
+      <div class="modal-card">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xl font-semibold">Edit Link or Note</h2>
+          <button class="text-sm text-slate-400" type="button" data-modal-close>Close</button>
+        </div>
+        <form method="POST" class="space-y-3">
+          <div>
+            <label class="text-xs uppercase tracking-wide text-slate-500">Type</label>
+            <select name="kind" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2">
+              <option value="note">Note</option>
+              <option value="link">Link</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-wide text-slate-500">Title</label>
+            <input type="text" name="title" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-wide text-slate-500">Link</label>
+            <input type="url" name="url" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-wide text-slate-500">Note</label>
+            <textarea name="content" rows="3" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"></textarea>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button class="rounded-lg border border-slate-300 px-4 py-2 text-sm" type="button" data-modal-close>
+              Cancel
+            </button>
+            <button class="rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-semibold" type="submit">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop hidden" data-edit-modal="task">
+      <div class="modal-card">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xl font-semibold">Edit Task</h2>
+          <button class="text-sm text-slate-400" type="button" data-modal-close>Close</button>
+        </div>
+        <form method="POST" class="space-y-3">
+          <div>
+            <label class="text-xs uppercase tracking-wide text-slate-500">Category</label>
+            <select name="category" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2">
+              <option value="before">Before the Trip</option>
+              <option value="during">During the Trip</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-wide text-slate-500">Task</label>
+            <input type="text" name="text" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+          </div>
+          <div class="flex justify-end gap-2">
+            <button class="rounded-lg border border-slate-300 px-4 py-2 text-sm" type="button" data-modal-close>
+              Cancel
+            </button>
+            <button class="rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-semibold" type="submit">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop hidden" data-edit-modal="item">
+      <div class="modal-card">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xl font-semibold">Edit Item</h2>
+          <button class="text-sm text-slate-400" type="button" data-modal-close>Close</button>
+        </div>
+        <form method="POST" class="space-y-3">
+          <div>
+            <label class="text-xs uppercase tracking-wide text-slate-500">List</label>
+            <select name="list" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2">
+              <option value="before-travel">Things to Buy Before Travel</option>
+              <option value="buy-in-japan">Things to Buy in Japan</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-wide text-slate-500">Item</label>
+            <input type="text" name="name" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+          </div>
+          <div class="flex justify-end gap-2">
+            <button class="rounded-lg border border-slate-300 px-4 py-2 text-sm" type="button" data-modal-close>
+              Cancel
+            </button>
+            <button class="rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-semibold" type="submit">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop hidden" data-edit-modal="itinerary">
+      <div class="modal-card">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xl font-semibold">Edit Itinerary Plan</h2>
+          <button class="text-sm text-slate-400" type="button" data-modal-close>Close</button>
+        </div>
+        <form method="POST" class="space-y-3">
+          <div>
+            <label class="text-xs uppercase tracking-wide text-slate-500">Date</label>
+            <input type="date" name="date" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-wide text-slate-500">Description</label>
+            <input type="text" name="description" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+          </div>
+          <div class="flex justify-end gap-2">
+            <button class="rounded-lg border border-slate-300 px-4 py-2 text-sm" type="button" data-modal-close>
+              Cancel
+            </button>
+            <button class="rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-semibold" type="submit">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop hidden" data-owner-modal>
+      <div class="modal-card">
+        <h2 class="text-xl font-semibold mb-2">Who is planning right now?</h2>
+        <p class="text-sm text-slate-500 mb-4">
+          Choose a name so new entries are tagged correctly.
+        </p>
+        <div class="space-y-3">
+          <% owners.forEach(owner => { %>
+            <label class="flex items-center gap-3 rounded-lg border border-slate-200 px-3 py-2">
+              <input
+                type="radio"
+                name="owner-choice"
+                value="<%= owner %>"
+                class="h-4 w-4"
+              />
+              <span class="font-medium"><%= owner %></span>
+            </label>
+          <% }) %>
+        </div>
+        <button
+          class="mt-6 w-full rounded-lg bg-slate-900 px-4 py-2 text-white"
+          type="button"
+          data-owner-save
+        >
+          Save
+        </button>
+      </div>
+    </div>
+
+    <script src="/public/app.js"></script>
+  </body>
+</html>
