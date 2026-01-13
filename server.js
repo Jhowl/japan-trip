@@ -5,7 +5,7 @@ const multer = require("multer");
 const { db, init } = require("./db");
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3010;
 const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, "uploads");
 
 if (!fs.existsSync(uploadDir)) {

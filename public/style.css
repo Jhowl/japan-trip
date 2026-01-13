@@ -120,10 +120,6 @@ body {
   border-radius: 12px;
 }
 
-.scroll-panel {
-  max-height: 380px;
-  overflow-y: auto;
-}
 
 .theme-dark .text-slate-400 {
   color: var(--text-soft);

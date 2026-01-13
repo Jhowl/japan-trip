@@ -4,9 +4,9 @@ services:
   app:
     build: .
     ports:
-      - "${PORT:-3000}:3000"
+      - "${PORT:-3010}:3010"
     environment:
-      - PORT=3000
+      - PORT=3010
       - DB_PATH=/app/data/app.db
       - UPLOAD_DIR=/app/data/uploads
     volumes:
