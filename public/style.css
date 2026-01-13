@@ -149,3 +149,63 @@ body {
 .theme-dark .bg-white {
   background: #0b1220;
 }
+
+.theme-dark .bg-slate-900 {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.theme-dark .text-white {
+  color: #0f172a;
+}
+
+.theme-dark .bg-amber-400,
+.theme-dark .bg-amber-500 {
+  background: #fbbf24;
+  color: #1f2937;
+}
+
+.theme-dark .hover\\:bg-slate-100:hover {
+  background: #0b1220;
+}
+
+.theme-dark .border-slate-300 {
+  border-color: #1f2937;
+}
+
+.theme-dark input,
+.theme-dark select,
+.theme-dark textarea {
+  background: #0b1220;
+  color: var(--text-main);
+}
+
+.theme-dark input::placeholder,
+.theme-dark textarea::placeholder {
+  color: var(--text-soft);
+}
+
+.theme-dark .calendar-entry {
+  color: #e2e8f0;
+}
+
+.theme-dark h1,
+.theme-dark h2,
+.theme-dark h3,
+.theme-dark h4,
+.theme-dark h5,
+.theme-dark h6,
+.theme-dark .font-semibold,
+.theme-dark .font-medium {
+  color: var(--text-main);
+}
+
+.theme-dark button,
+.theme-dark .owner-pill,
+.theme-dark .section-card button {
+  border-color: #1f2937;
+}
+
+.theme-dark .owner-pill span {
+  color: var(--pill-text);
+}
